@@ -6,13 +6,13 @@
     <title>نظام إدارة مدرسة قطر الندى الأساسية الأهلية</title>
     
     <!-- إعدادات الأيقونات (Favicon) لجميع المنصات باستخدام q.png -->
-    <link rel="icon" type="image/png" sizes="16x16" href="q.PNG">
-    <link rel="icon" type="image/png" sizes="32x32" href="q.PNG">
-    <link rel="icon" type="image/png" sizes="48x48" href="q.PNG">
-    <link rel="icon" type="image/png" sizes="96x96" href="q.PNG">
+    <link rel="icon" type="image/png" sizes="16x16" href="q.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="q.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="q.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="q.png">
     
     <!-- إعدادات أجهزة Apple (iPhone/iPad) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="q.PNG">
+    <link rel="apple-touch-icon" sizes="180x180" href="q.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     
@@ -89,25 +89,9 @@
         .theme-icon-anim {
             animation: spin-rotate 0.5s ease-out forwards;
         }
-
-        /* أنميشن الانتقال (q.png) */
-        @keyframes pulse-logo {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .logo-transition {
-            animation: pulse-logo 1s infinite ease-in-out;
-        }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 font-sans antialiased bg-slate-100 dark:bg-slate-900 transition-colors duration-300">
-
-    <!-- شاشة الانتقال (Loader Overlay) -->
-    <div id="page-loader" class="fixed inset-0 z-[9999] bg-white dark:bg-slate-900 flex flex-col items-center justify-center transition-opacity duration-500 pointer-events-none opacity-0">
-        <img src="q.png" class="w-24 h-24 logo-transition object-contain mb-4" alt="جاري التحميل...">
-        <p class="text-primary dark:text-teal-400 font-bold text-lg animate-pulse">جاري الانتقال...</p>
-    </div>
 
     <!-- الحاوية الرئيسية -->
     <div class="flex h-screen overflow-hidden">
@@ -115,8 +99,9 @@
         <!-- القائمة الجانبية (Sidebar) -->
         <aside class="w-64 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 hidden md:flex flex-col z-10 shadow-lg transition-colors">
             <div class="p-6 flex items-center justify-center border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-center gap-2 text-primary dark:text-teal-400 font-bold text-lg text-center leading-tight">
-                    <i data-lucide="graduation-cap" class="w-8 h-8 flex-shrink-0"></i>
+                <div class="flex flex-col items-center gap-2 text-primary dark:text-teal-400 font-bold text-lg text-center leading-tight">
+                    <!-- استبدال الأيقونة بالصورة -->
+                    <img src="q.png" alt="شعار المدرسة" class="w-16 h-16 object-contain mb-2">
                     <span>قطر الندى الأساسية الأهلية</span>
                 </div>
             </div>
@@ -372,49 +357,35 @@
         let deleteTarget = null; 
 
         function router(pageId) {
-            // إظهار شاشة الانتقال
-            const loader = document.getElementById('page-loader');
-            if (loader) {
-                loader.classList.remove('opacity-0', 'pointer-events-none');
-            }
+            const content = document.getElementById('content-area');
+            const title = document.getElementById('page-title');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isActive = btn.getAttribute('onclick').includes(pageId);
+                btn.classList.toggle('bg-accent', isActive);
+                btn.classList.toggle('dark:bg-slate-700', isActive);
+                btn.classList.toggle('text-primary', isActive);
+                btn.classList.toggle('dark:text-teal-400', isActive);
+            });
 
-            // تأخير عرض المحتوى لإظهار الانتقال
-            setTimeout(() => {
-                const content = document.getElementById('content-area');
-                const title = document.getElementById('page-title');
-                
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    const isActive = btn.getAttribute('onclick').includes(pageId);
-                    btn.classList.toggle('bg-accent', isActive);
-                    btn.classList.toggle('dark:bg-slate-700', isActive);
-                    btn.classList.toggle('text-primary', isActive);
-                    btn.classList.toggle('dark:text-teal-400', isActive);
-                });
+            title.textContent = {
+                'dashboard': 'لوحة التحكم', 'students': 'إدارة الطلاب', 'teachers': 'إدارة المعلمين',
+                'attendance': 'سجل الحضور', 'grades': 'الدرجات والنتائج', 'notifications': 'مركز الإشعارات'
+            }[pageId];
 
-                title.textContent = {
-                    'dashboard': 'لوحة التحكم', 'students': 'إدارة الطلاب', 'teachers': 'إدارة المعلمين',
-                    'attendance': 'سجل الحضور', 'grades': 'الدرجات والنتائج', 'notifications': 'مركز الإشعارات'
-                }[pageId];
+            content.classList.remove('fade-in');
+            void content.offsetWidth;
+            content.classList.add('fade-in');
 
-                content.classList.remove('fade-in');
-                void content.offsetWidth;
-                content.classList.add('fade-in');
-
-                if(pageId === 'dashboard') renderDashboard();
-                else if(pageId === 'students') renderStudents();
-                else if(pageId === 'teachers') renderTeachers();
-                else if(pageId === 'attendance') renderAttendance();
-                else if(pageId === 'grades') renderGrades();
-                else if(pageId === 'notifications') renderNotifications();
-                
-                lucide.createIcons();
-                updateNotifBadge();
-
-                // إخفاء شاشة الانتقال
-                setTimeout(() => {
-                    if (loader) loader.classList.add('opacity-0', 'pointer-events-none');
-                }, 300); // تأخير بسيط بعد التحميل
-            }, 600); // مدة عرض شاشة الانتقال
+            if(pageId === 'dashboard') renderDashboard();
+            else if(pageId === 'students') renderStudents();
+            else if(pageId === 'teachers') renderTeachers();
+            else if(pageId === 'attendance') renderAttendance();
+            else if(pageId === 'grades') renderGrades();
+            else if(pageId === 'notifications') renderNotifications();
+            
+            lucide.createIcons();
+            updateNotifBadge();
         }
 
         // --- 3. صفحات ومكونات النظام (مع دعم الوضع الليلي) ---
